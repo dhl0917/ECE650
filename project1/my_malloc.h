@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <limits.h>
 
 // struct of a block in the linked list
 struct block_tag{
@@ -26,6 +27,7 @@ void* bf_malloc(size_t size);
 void bf_free(void *ptr);
 
 block_t* findBlock_ff(size_t size);
+block_t* findBlock_bf(size_t size);
 block_t* newBlock(size_t size);
 block_t* splitBlock(block_t* pos, size_t size);
 block_t* getBlock(void* ptr);

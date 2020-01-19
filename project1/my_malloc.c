@@ -37,6 +37,58 @@ void* ff_malloc(size_t size){
   }
 }
 
+void ff_free(void* ptr){
+  block_t* b = getBlock(ptr);// Find the pointer to the block
+  b->free = 1;
+  // Merging the adjacent free regions into a single free region of memory
+  while(b->prev != NULL && b->prev->free == 1){
+    b = merge(b);
+  }
+  while(b->prev != NULL && b->prev->free == 1){
+    b = merge(b->prev);
+  }
+}
+
+void* bf_malloc(size_t size){
+  if(head == NULL && tail==NULL){
+    head = newBlock(size);
+    if(head == NULL){// sbrk failed
+      return NULL;
+    }
+    tail = head;
+    return (char*)head + sizeof(block_t);
+  }
+  else{
+    block_t* pos = findBlock_bf(size);
+    if(pos != NULL){// Find valid blocks
+      if(pos->size >= size + sizeof(block_t)){// Able to spilt
+	pos = splitBlock(pos,size);
+	//return (char*) pos + sizeof(block_t);
+      }
+      else{// Not able to split
+	pos->free = 0;
+	//return (char*) pos + sizeof(block_t);
+      }
+    }
+    else{// No valid blocks
+      pos = newBlock(size);
+      if(pos == NULL){// sbrk failed
+	return NULL;
+      }
+      // sbrk succeed and insert the new block into the linked list
+      tail->next = pos;
+      pos->prev = tail;
+      tail = pos;
+      //return (cahr*)pos+sizeof(block_t);
+    }
+    return (char*) pos + sizeof(block_t);
+  }
+}
+
+void bf_free(void* ptr){
+  ff_free(ptr);
+}
+
 block_t* findBlock_ff(size_t size){
   block_t* curr = head;
   while(curr!=NULL){
@@ -48,6 +100,28 @@ block_t* findBlock_ff(size_t size){
   // Not find
   return NULL;
 }
+
+block_t* findBlock_bf(size_t size){
+  block_t* b = NULL;
+  unsigned int diff = UINT_MAX;
+  block_t* curr = head;
+  while(curr!=NULL){
+    if(curr->free == 0 || curr->size<size){// Invalid blocks
+      curr = curr->next;
+      continue;
+    }
+    if(curr->size == size){// Best fit, early stop
+      return curr;
+    }
+    if(curr->size - size < diff){// Potential valid blocks 
+      diff = curr->size - size;
+      b = curr;
+      curr = curr->next;
+    }
+  }
+  return b;
+}
+
 
 block_t* newBlock(size_t size){
   block_t* b = sbrk(0);// pointer to the start address
@@ -77,19 +151,6 @@ block_t* splitBlock(block_t* pos, size_t size){
   pos->size = size;
   pos->free = 0;
   return pos;
-}
-
-
-void ff_free(void* ptr){
-  block_t* b = getBlock(ptr);// Find the pointer to the block
-  b->free = 1;
-  // Merging the adjacent free regions into a single free region of memory
-  while(b->prev != NULL && b->prev->free == 1){
-    b = merge(b);
-  }
-  while(b->prev != NULL && b->prev->free == 1){
-    b = merge(b->prev);
-  }
 }
 
 block_t* merge(block_t* b){
