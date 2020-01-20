@@ -2,6 +2,9 @@
 
 
 void* ff_malloc(size_t size){
+  if(size==0){
+    return NULL;
+  }
   if(head == NULL && tail==NULL){
     head = newBlock(size);
     if(head == NULL){// sbrk failed
@@ -53,6 +56,9 @@ void ff_free(void* ptr){
 }
 
 void* bf_malloc(size_t size){
+  if(size==0){
+    return NULL;
+  }
   if(head == NULL && tail==NULL){
     head = newBlock(size);
     if(head == NULL){// sbrk failed
