@@ -38,6 +38,9 @@ void* ff_malloc(size_t size){
 }
 
 void ff_free(void* ptr){
+  if(ptr == NULL){
+    return;
+  }
   block_t* b = getBlock(ptr);// Find the pointer to the block
   b->free = 1;
   // Merging the adjacent free regions into a single free region of memory
