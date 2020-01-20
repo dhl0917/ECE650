@@ -1,8 +1,11 @@
-#include "my_malloc.c"
-
+//#include "my_malloc.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 int main(void){
-  ff_malloc(5);
+  int a = 0;
+  a += 5;
+  printf("%d\n",a);
   return 0;
 }
 
