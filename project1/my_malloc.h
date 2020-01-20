@@ -32,5 +32,7 @@ block_t* newBlock(size_t size);
 block_t* splitBlock(block_t* pos, size_t size);
 block_t* getBlock(void* ptr);
 block_t* merge(block_t* b);
+unsigned long get_data_segment_size();
+unsigned long get_data_segment_free_space_size();
 
 #endif

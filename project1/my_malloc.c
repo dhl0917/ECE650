@@ -171,3 +171,25 @@ block_t* getBlock(void* ptr){
   block_t* b = (block_t*)((char*)ptr - sizeof(block_t));
   return b;
 }
+
+unsigned long get_data_segment_size(){
+  unsigned long res = 0;
+  block_t* curr = head;
+  while(curr != NULL){
+    res += sizeof(block_t) + curr->size;
+    curr = curr ->next;
+  }
+  return res;
+}
+
+unsigned long get_data_segment_free_space_size(){
+  unsigned long res = 0;
+  block_t* curr = head;
+  while(curr != NULL){
+    if(curr->free == 1){
+      res += sizeof(block_t) + curr->size;
+    }
+    curr = curr -> next;
+  }
+  return res;
+}
