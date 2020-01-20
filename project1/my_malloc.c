@@ -41,7 +41,7 @@ void ff_free(void* ptr){
   block_t* b = getBlock(ptr);// Find the pointer to the block
   b->free = 1;
   // Merging the adjacent free regions into a single free region of memory
-  while(b->prev != NULL && b->prev->free == 1){
+  while(b->next != NULL && b->next->free == 1){
     b = merge(b);
   }
   while(b->prev != NULL && b->prev->free == 1){
@@ -116,8 +116,8 @@ block_t* findBlock_bf(size_t size){
     if(curr->size - size < diff){// Potential valid blocks 
       diff = curr->size - size;
       b = curr;
-      curr = curr->next;
     }
+    curr = curr->next;
   }
   return b;
 }
