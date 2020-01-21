@@ -1,8 +1,8 @@
 #include "my_malloc.h"
-
+#include "assert.h"
 
 void* ff_malloc(size_t size){
-  if(size==0){
+  if(size == 0){//Cannot allocate 0 byte
     return NULL;
   }
   if(head == NULL && tail==NULL){
@@ -18,11 +18,9 @@ void* ff_malloc(size_t size){
     if(pos != NULL){// Find valid blocks
       if(pos->size >= size + sizeof(block_t)){// Able to spilt
 	pos = splitBlock(pos,size);
-	//return (char*) pos + sizeof(block_t);
       }
       else{// Not able to split
 	pos->free = 0;
-	//return (char*) pos + sizeof(block_t);
       }
     }
     else{// No valid blocks
@@ -34,7 +32,6 @@ void* ff_malloc(size_t size){
       tail->next = pos;
       pos->prev = tail;
       tail = pos;
-      //return (cahr*)pos+sizeof(block_t);
     }
     return (char*) pos + sizeof(block_t);
   }
@@ -45,6 +42,7 @@ void ff_free(void* ptr){
     return;
   }
   block_t* b = getBlock(ptr);// Find the pointer to the block
+  assert(b->free == 0);
   b->free = 1;
   // Merging the adjacent free regions into a single free region of memory
   while(b->next != NULL && b->next->free == 1){
@@ -56,7 +54,7 @@ void ff_free(void* ptr){
 }
 
 void* bf_malloc(size_t size){
-  if(size==0){
+  if(size == 0){//Cannot allocate 0 byte
     return NULL;
   }
   if(head == NULL && tail==NULL){
