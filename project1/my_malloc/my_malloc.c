@@ -5,6 +5,7 @@ void* ff_malloc(size_t size){
   if(size == 0){//Cannot allocate 0 byte
     return NULL;
   }
+  valid = 0;
   if(head == NULL && tail==NULL){
     head = newBlock(size);
     if(head == NULL){// sbrk failed
@@ -41,6 +42,7 @@ void ff_free(void* ptr){
   if(ptr == NULL){
     return;
   }
+  valid = 0;
   block_t* b = getBlock(ptr);// Find the pointer to the block
   assert(b->free == 0);
   b->free = 1;
@@ -57,6 +59,7 @@ void* bf_malloc(size_t size){
   if(size == 0){//Cannot allocate 0 byte
     return NULL;
   }
+  valid = 0;
   if(head == NULL && tail==NULL){
     head = newBlock(size);
     if(head == NULL){// sbrk failed
@@ -180,23 +183,31 @@ block_t* getBlock(void* ptr){
 }
 
 unsigned long get_data_segment_size(){
-  unsigned long res = 0;
-  block_t* curr = head;
-  while(curr != NULL){
-    res += sizeof(block_t) + curr->size;
-    curr = curr ->next;
+  if(valid == 1){
+    return data_segment_size;
   }
-  return res;
+  count_segment();
+  return data_segment_size;
 }
 
 unsigned long get_data_segment_free_space_size(){
-  unsigned long res = 0;
+  if(valid == 1){
+    return data_segment_free_space_size;
+  }
+  count_segment();
+  return data_segment_free_space_size;
+}
+
+void count_segment(){
+  data_segment_size = 0;
+  data_segment_free_space_size = 0;
   block_t* curr = head;
   while(curr != NULL){
     if(curr->free == 1){
-      res += sizeof(block_t) + curr->size;
+      data_segment_free_space_size += sizeof(block_t) + curr->size;
     }
-    curr = curr -> next;
+    data_segment_size += sizeof(block_t) + curr->size;
+    curr = curr ->next;
   }
-  return res;
+  valid = 1;
 }

@@ -20,6 +20,10 @@ typedef struct block_tag block_t;
 block_t* head = NULL;
 block_t* tail = NULL;
 
+unsigned long data_segment_size;
+unsigned long data_segment_free_space_size;
+int valid = 0;
+
 void* ff_malloc(size_t size);
 void ff_free(void *ptr);
 
@@ -34,5 +38,7 @@ block_t* getBlock(void* ptr);
 block_t* merge(block_t* b);
 unsigned long get_data_segment_size();
 unsigned long get_data_segment_free_space_size();
+void count_segment();
+
 
 #endif
