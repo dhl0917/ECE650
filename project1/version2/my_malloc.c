@@ -29,6 +29,7 @@ void* ff_malloc(size_t size){
 	  block_t* new = (block_t*)((char*)freehead + sizeof(block_t) + size);
 	  new->free = freehead->free;
 	  new->size = freehead->size - sizeof(block_t) - size;
+	  freehead->size = size;
 	  freehead->free = NULL;
 	  freehead = new;
 	}
@@ -49,6 +50,7 @@ void* ff_malloc(size_t size){
 	      block_t* new = (block_t*)((char*)(p->free) + sizeof(block_t) +size);
 	      new->free = p->free->free;
 	      new->size = p->free->size - sizeof(block_t) - size;
+	      p->free->size = size;
 	      p->free->free = NULL;
 	      p->free = new;
 	    }
@@ -132,7 +134,7 @@ void* bf_malloc(size_t size){
   if(size == 0){// Cannot malloc 0 byte
     return NULL;
   }
-  if(base = NULL){// No mallocs before
+  if(base == NULL){// No mallocs before
     block_t* pos = newBlock(size);
     if(pos == NULL){// newBlock failed
       return NULL;
@@ -153,7 +155,15 @@ void* bf_malloc(size_t size){
     else{
       // diff for the freehead
       size_t diff_head = UINT_MAX;
-      if(freehead->size >= size){
+      if(freehead->size == size){// early stop
+	diff_head = 0;
+	void* ans = (void*)((char*)freehead + sizeof(block_t));
+	block_t* curr = freehead;
+	freehead = freehead->free;
+	curr->free = NULL;
+	return ans;
+      }
+      if(freehead->size > size){
 	diff_head = freehead->size - size;
       }
       // diff for the body
@@ -161,6 +171,11 @@ void* bf_malloc(size_t size){
       block_t* mark = NULL;
       size_t diff_body = UINT_MAX;
       while(p->free != NULL){
+	if(p->free->size == size){// early stop
+	  diff_body = 0;
+	  mark = p;
+	  break;
+	}
 	if(p->free->size >= size){// potential block
 	  if(diff_body > p->free->size - size){
 	    diff_body = p->free->size - size;
@@ -182,6 +197,7 @@ void* bf_malloc(size_t size){
 	  block_t* new = (block_t*)((char*)freehead + sizeof(block_t) + size);
 	  new->free = freehead->free;
 	  new->size = freehead->size - sizeof(block_t) - size;
+	  freehead->size = size;
 	  freehead->free = NULL;
 	  freehead = new;
 	}
@@ -198,6 +214,7 @@ void* bf_malloc(size_t size){
 	  block_t* new = (block_t*)((char*)(mark->free) + sizeof(block_t) + size);
 	  new->free = mark->free->free;
 	  new->size = mark->free->size - sizeof(block_t) - size;
+	  mark->free->size = size;
 	  mark->free->free = NULL;
 	  mark->free = new;
 	}
