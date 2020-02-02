@@ -40,11 +40,11 @@ In NOLOCK version, the mutex is only used right before and after the `sbrk()` fu
 
 The experiments were run 10 times for both LOCK version and NOLOCK version. All the experiments passed. Due to the space limitation, three results are shown below.
 
-![0](/Users/donghongliang/Desktop/0.png)
+![0](./lock.png)
 
 <center>Fig 1. LOCK Version</center>
 
-![1](/Users/donghongliang/Desktop/1.png)
+![1](./nolock.png)
 
 <center>Fig 2. NOLOCK Version</center>
 
