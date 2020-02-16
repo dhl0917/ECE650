@@ -4,7 +4,8 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <stdlib.h>
-
+#include <arpa/inet.h>
+#include <assert.h>
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -21,7 +22,15 @@ int main(int argc, char *argv[])
   const char *port     = argv[1];
   int num_players = atoi(argv[2]);
   int num_hops = atoi(argv[3]);
-
+  if(num_players<=1){
+    cout<<"num_players must be greater than 1."<<endl;
+    return 1;
+  }
+  if(num_hops<0||num_hops>512){
+    cout<<"num_hops must in the range [0,512]."<<endl;
+    return 1;
+  }
+    
   cout<<"Potato Ringmaster"<<endl;
   cout<<"Players = "<<num_players<<endl;
   cout<<"Hops = "<<num_hops<<endl;
@@ -38,7 +47,7 @@ int main(int argc, char *argv[])
     cerr << "  (" << hostname << "," << port << ")" << endl;
     return -1;
   } //if
-
+  assert(host_info_list->ai_next->ai_next == NULL);
   socket_fd = socket(host_info_list->ai_family, 
 		     host_info_list->ai_socktype, 
 		     host_info_list->ai_protocol);
@@ -64,7 +73,6 @@ int main(int argc, char *argv[])
     return -1;
   } //if
 
-  cout << "Waiting for connection on port " << port << endl;
 
   // Three lists to store information for each player
   int socket_array[num_players];
@@ -76,12 +84,19 @@ int main(int argc, char *argv[])
     struct sockaddr_storage socket_addr;
     socklen_t socket_addr_len = sizeof(socket_addr);
     socket_array[playerCounter] = accept(socket_fd, (struct sockaddr *)&socket_addr, &socket_addr_len);
+    
     if (socket_array[playerCounter] == -1) {
       cerr << "Error: cannot accept connection on the socket from player "<<playerCounter<< endl;
       return -1;
     } //if
+
+    struct sockaddr_in *temp = (struct sockaddr_in *)&socket_addr;
+    cout<<inet_ntoa(temp->sin_addr)<<endl;
+    cout<<temp->sin_port<<endl;
+    
     socket_addr_list[playerCounter] = socket_addr;
     socket_addr_len_list[playerCounter] = socket_addr_len;
+
     int connectedFlag=0;
     recv(socket_array[playerCounter],&connectedFlag,sizeof(connectedFlag),0);
     if(connectedFlag==1){
@@ -95,18 +110,23 @@ int main(int argc, char *argv[])
       cerr<<"Player "<<playerCounter<<" is down"<<endl;
       return -1;
     }
-    
     playerCounter += 1;
   }
-  
-
-  
-  
+  // Send target IP addresses
+  for(int i=0;i<num_players;i++){
+    if(i!=num_players-1){
+      send(socket_array[i],&socket_addr_list[i+1],socket_addr_len_list[i+1],0);
+    }
+    else{
+      send(socket_array[i],&socket_addr_list[0],socket_addr_len_list[0],0);
+    }
+  }
 
   for(int i=0;i<num_players;i++){
     int closedFlag=1;
     send(socket_array[i], &closedFlag, sizeof(closedFlag), 0);
   }
+
   
   freeaddrinfo(host_info_list);
   close(socket_fd);
