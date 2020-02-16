@@ -114,17 +114,30 @@ int main(int argc, char *argv[])
   }
   // Send target IP addresses
   for(int i=0;i<num_players;i++){
-    if(i!=num_players-1){
-      send(socket_array[i],&socket_addr_list[i+1],socket_addr_len_list[i+1],0);
+    int to_listen = 1;
+    int to_connect = 2;
+    send(socket_array[i],&to_listen,sizeof(to_listen),0);
+    
+    if(i+1!=num_players){
+      send(socket_array[i+1],&to_connect,sizeof(to_connect),0);
+      send(socket_array[i+1],&socket_addr_list[i],socket_addr_len_list[i],0);
     }
     else{
-      send(socket_array[i],&socket_addr_list[0],socket_addr_len_list[0],0);
+      send(socket_array[0],&to_connect,sizeof(to_connect),0);
+      send(socket_array[0],&socket_addr_list[i],socket_addr_len_list[i],0);
+    }
+    int successFlag = 0;
+    recv(socket_array[i],&successFlag,sizeof(successFlag),0);
+    if(successFlag != 1){
+      cerr<<"Building the connection between Player "<<i<< " and its left neighbor failed."<<endl;
+      return -1;
     }
   }
 
   for(int i=0;i<num_players;i++){
     int closedFlag=1;
     send(socket_array[i], &closedFlag, sizeof(closedFlag), 0);
+    close(socket_array[i]);
   }
 
   
