@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <assert.h>
 #include <arpa/inet.h>
+#include <stdlib.h> 
+#include <stdio.h>
 using namespace std;
 
 int main(int argc, char *argv[])
