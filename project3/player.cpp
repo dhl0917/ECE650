@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
   while(!syn){
     int signal;
     recv(socket_server,&signal,sizeof(signal),0); // Standby, waiting for orders from the server
+    cout<<signal<<endl;
     if(signal == 0){
       // All players connected and synchronized, break the loop
       syn = true;
@@ -170,15 +171,14 @@ int main(int argc, char *argv[])
         cerr << "  (" << inet_ntoa(temp->sin_addr) << "," << port_to_connect << ")" << endl;
         return -1;
       } //if
-      status = -1;
-      while(status == -1){
-        status = connect(socket_right, host_info_new_list->ai_addr, host_info_new_list->ai_addrlen);
-      }
-      // if (status == -1) {
-      //   cerr << "Error: cannot connect to socket" << endl;
-      //   cerr << "  (" << inet_ntoa(temp->sin_addr) << "," << port_to_connect << ")" << endl;
-      //   return -1;
-      // } //if
+
+      status = connect(socket_right, host_info_new_list->ai_addr, host_info_new_list->ai_addrlen);
+      if (status == -1) {
+	cerr << "Error: cannot connect to socket" << endl;
+        cerr << "  (" << inet_ntoa(temp->sin_addr) << "," << port_to_connect << ")" << endl;
+        return -1;
+      } //if
+
       freeaddrinfo(host_info_new_list);
       connectedFlag = 1;
       send(socket_right, &connectedFlag, sizeof(connectedFlag), 0);

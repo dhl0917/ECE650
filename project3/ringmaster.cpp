@@ -133,8 +133,14 @@ int main(int argc, char *argv[])
       cerr<<"Building the connection between Player "<<i<< " and its left neighbor failed."<<endl;
       return -1;
     }
+    cout<<"hey!"<<successFlag<<endl;
   }
 
+  for(int i=0;i<num_players;i++){
+    int synFlag=0;
+    send(socket_array[i], &synFlag, sizeof(synFlag), 0);
+  }
+  
   for(int i=0;i<num_players;i++){
     int closedFlag=1;
     send(socket_array[i], &closedFlag, sizeof(closedFlag), 0);
