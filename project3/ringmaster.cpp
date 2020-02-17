@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <assert.h>
+#include "potato.h"
+
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -36,6 +38,7 @@ int main(int argc, char *argv[])
   cout<<"Players = "<<num_players<<endl;
   cout<<"Hops = "<<num_hops<<endl;
 
+  // listen to the port
   memset(&host_info, 0, sizeof(host_info));
 
   host_info.ai_family   = AF_UNSPEC;
@@ -80,6 +83,7 @@ int main(int argc, char *argv[])
   struct sockaddr_storage socket_addr_list[num_players];
   socklen_t socket_addr_len_list[num_players];
 
+  // Connect with every single player
   int playerCounter = 0;
   while(playerCounter<num_players){
     struct sockaddr_storage socket_addr;
@@ -113,7 +117,8 @@ int main(int argc, char *argv[])
     }
     playerCounter += 1;
   }
-  // Send target IP addresses
+
+  // Send target IP addresses and connect all players
   for(int i=0;i<num_players;i++){
     int to_listen = 1;
     int to_connect = 2;
@@ -135,11 +140,68 @@ int main(int argc, char *argv[])
     }
   }
 
+  // Tell all players that all are synchronized
   for(int i=0;i<num_players;i++){
     int synFlag=0;
     send(socket_array[i], &synFlag, sizeof(synFlag), 0);
   }
   
+  // Initialize the potato
+  potato_t potato;
+  potato.num_hops = num_hops;
+  potato.index = -1;
+  potato.GAMEOVER = false;
+  srand((unsigned int)time(NULL)+num_players);
+  int random_start = rand() % num_players;
+
+  // Send the first potato
+  send(socket_array[random_start],&potato,sizeof(potato),0);
+  cout<<"Ready to start the game, sending potato to player "<<random_start<<endl;
+
+
+  // Select where the potato coming back
+  fd_set rfds;
+  int retval;
+  int max_fdid=-1;
+
+  FD_ZERO(&rfds);
+  for(int i=0;i<num_players;i++){
+    FD_SET(socket_array[i], &rfds);
+    max_fdid = (socket_array[i]>max_fdid)?socket_array[i]:max_fdid;
+  }
+  
+  retval = select(max_fdid+1, &rfds, NULL, NULL, NULL);
+  if (retval == -1){
+      cerr<<"select()"<<endl;
+  }
+
+  for(int i=0;i<num_players;i++){
+    if(FD_ISSET(socket_array[i], &rfds)){
+      recv(socket_array[i],&potato,sizeof(potato),0);
+      break;
+    }
+  }
+  FD_ZERO(&rfds);
+
+  // Receive from it and print the results
+  cout<<"Trace of potato:"<<endl;
+  for(int i=0;i<num_hops;i++){
+    if(i==0){
+      cout<<potato.trace[i];
+    }
+    else{
+      cout<<","<<potato.trace[i];
+    }
+  }
+  cout<<endl;
+
+  // Tell all players GAMEOVER
+  potato.GAMEOVER = true;
+  for(int i=0;i<num_players;i++){
+    send(socket_array[i],&potato,sizeof(potato),0);
+  }
+
+  // Tell all players to close sockets
   for(int i=0;i<num_players;i++){
     int closedFlag=1;
     send(socket_array[i], &closedFlag, sizeof(closedFlag), 0);

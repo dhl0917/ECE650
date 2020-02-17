@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <stdlib.h> 
 #include <stdio.h>
+#include "potato.h"
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -25,6 +26,7 @@ int main(int argc, char *argv[])
   const char *hostname = argv[1];
   const char *port     = argv[2];
   
+  // Connect to server
   memset(&host_info, 0, sizeof(host_info));
   host_info.ai_family   = AF_UNSPEC;
   host_info.ai_socktype = SOCK_STREAM;
@@ -65,6 +67,7 @@ int main(int argc, char *argv[])
   cout<<"Connected as player "<<id<<" out of "<<num_players<<" total players"<<endl;
 
 
+  // Connect with neighbors
   bool syn = false;
   while(!syn){
     int signal;
@@ -181,7 +184,75 @@ int main(int argc, char *argv[])
       send(socket_right, &connectedFlag, sizeof(connectedFlag), 0);
     }
   }
-  
+
+  // Game start
+  bool GAMEOVER = false;
+  fd_set rfds;
+  int retval;
+  int max_fdid;
+  potato_t potato;
+
+  while(!GAMEOVER){
+    FD_ZERO(&rfds);
+    FD_SET(socket_server, &rfds);
+    FD_SET(socket_left, &rfds);
+    FD_SET(socket_right, &rfds);
+    max_fdid = (socket_left>socket_right)?socket_left:socket_right;
+    max_fdid = (socket_server>max_fdid)?socket_server:max_fdid;
+
+    retval = select(max_fdid+1, &rfds, NULL, NULL, NULL);
+    if (retval == -1){
+      cerr<<"select()"<<endl;
+    }
+    if(FD_ISSET(socket_server, &rfds)){
+      recv(socket_server,&potato,sizeof(potato),0);
+    }
+    if(FD_ISSET(socket_left, &rfds)){
+      recv(socket_left,&potato,sizeof(potato),0);
+    }
+    if(FD_ISSET(socket_right, &rfds)){
+      recv(socket_right,&potato,sizeof(potato),0);
+    }
+    if(potato.GAMEOVER){
+      GAMEOVER = true;
+    }
+    else{
+      potato.num_hops -= 1;
+      potato.index += 1;
+      potato.trace[potato.index] = id;
+
+      if(potato.num_hops == 0){
+        cout<<"I’m it"<<endl;
+        send(socket_server,&potato,sizeof(potato),0);
+      }
+      else{
+        srand((unsigned int)time(NULL)+id);
+        int random_send = rand() % 2; // 0 to the left, 1 to the right
+        if(random_send == 0){
+          if(id == num_players-1){
+            cout<<"Sending potato to "<<0<<endl;
+          }
+          else{
+            cout<<"Sending potato to "<<id+1<<endl;
+          }
+          send(socket_left,&potato,sizeof(potato),0);
+        }
+        else{
+          if(id == 0){
+            cout<<"Sending potato to "<<num_players-1<<endl;
+          }
+          else{
+            cout<<"Sending potato to "<<id-1<<endl;
+          }
+          send(socket_right,&potato,sizeof(potato),0);
+        }
+      }
+    }
+  }
+
+
+
+
   int closedFlag=0;
   while(closedFlag==0){
     recv(socket_server,&closedFlag,sizeof(closedFlag),0);
