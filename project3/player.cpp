@@ -68,7 +68,6 @@ int main(int argc, char *argv[])
   while(!syn){
     int signal;
     recv(socket_server,&signal,sizeof(signal),0); // Standby, waiting for orders from the server
-    cout<<signal<<endl;
     if(signal == 0){
       // All players connected and synchronized, break the loop
       syn = true;
@@ -118,7 +117,6 @@ int main(int argc, char *argv[])
       struct sockaddr_storage socket_addr_left;
       socklen_t socket_addr_len_left = sizeof(socket_addr_left);
       socket_left = accept(socket_listen, (struct sockaddr *)&socket_addr_left, &socket_addr_len_left);
-      cout<<"accepting"<<endl;
       if (socket_left == -1) {
         cerr << "Error: cannot accept connection on the socket of player "<<id<< endl;
         return -1;
@@ -172,12 +170,10 @@ int main(int argc, char *argv[])
         return -1;
       } //if
 
-      cout<<"i'm here 1"<<endl;
       status = -1;
       while(status==-1){
 	      status = connect(socket_right, host_info_list->ai_addr, host_info_list->ai_addrlen);
       }
-      cout<<"i'm here 2"<<endl;
 
       connectedFlag = 1;
       send(socket_right, &connectedFlag, sizeof(connectedFlag), 0);
