@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
     cerr << "  (" << hostname << "," << port << ")" << endl;
     return -1;
   } //if
+  freeaddrinfo(host_info_list);
 
   int connectedFlag = 1;
   send(socket_server, &connectedFlag, sizeof(connectedFlag), 0);
@@ -107,6 +108,7 @@ int main(int argc, char *argv[])
         cerr << "  (Player " << id << "," << atoi(port_to_listen) << ")" << endl;
         return -1;
       } //if
+      freeaddrinfo(host_info_list);
 
       status = listen(socket_listen, 100);
       if (status == -1) {
@@ -174,7 +176,7 @@ int main(int argc, char *argv[])
       while(status==-1){
 	      status = connect(socket_right, host_info_list->ai_addr, host_info_list->ai_addrlen);
       }
-
+      freeaddrinfo(host_info_list);
       connectedFlag = 1;
       send(socket_right, &connectedFlag, sizeof(connectedFlag), 0);
     }
@@ -185,7 +187,7 @@ int main(int argc, char *argv[])
     recv(socket_server,&closedFlag,sizeof(closedFlag),0);
   }
   
-  freeaddrinfo(host_info_list);
+
   close(socket_left);
   close(socket_right);
   close(socket_listen);
