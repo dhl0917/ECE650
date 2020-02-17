@@ -192,6 +192,7 @@ int main(int argc, char *argv[])
   int max_fdid;
   potato_t potato;
 
+  srand((unsigned int)time(NULL)+id);
   while(!GAMEOVER){
     FD_ZERO(&rfds);
     FD_SET(socket_server, &rfds);
@@ -226,7 +227,6 @@ int main(int argc, char *argv[])
         send(socket_server,&potato,sizeof(potato),0);
       }
       else{
-        srand((unsigned int)time(NULL)+id);
         int random_send = rand() % 2; // 0 to the left, 1 to the right
         if(random_send == 0){
           if(id == num_players-1){
