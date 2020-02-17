@@ -151,6 +151,28 @@ int main(int argc, char *argv[])
   potato.num_hops = num_hops;
   potato.index = -1;
   potato.GAMEOVER = false;
+
+  if(potato.num_hops == 0){
+    // Tell all players GAMEOVER
+    potato.GAMEOVER = true;
+    for(int i=0;i<num_players;i++){
+      send(socket_array[i],&potato,sizeof(potato),0);
+    }
+
+    // Tell all players to close sockets
+    for(int i=0;i<num_players;i++){
+      int closedFlag=1;
+      send(socket_array[i], &closedFlag, sizeof(closedFlag), 0);
+      close(socket_array[i]);
+    }
+
+    
+    freeaddrinfo(host_info_list);
+    close(socket_fd);
+
+    return 0;
+  }
+
   srand((unsigned int)time(NULL)+num_players);
   int random_start = rand() % num_players;
 

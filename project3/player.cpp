@@ -189,17 +189,19 @@ int main(int argc, char *argv[])
   bool GAMEOVER = false;
   fd_set rfds;
   int retval;
-  int max_fdid;
   potato_t potato;
-
+  int max_fdid;
+  max_fdid = (socket_left>socket_right)?socket_left:socket_right;
+  max_fdid = (socket_server>max_fdid)?socket_server:max_fdid;
+  
   srand((unsigned int)time(NULL)+id);
+  
   while(!GAMEOVER){
     FD_ZERO(&rfds);
     FD_SET(socket_server, &rfds);
     FD_SET(socket_left, &rfds);
     FD_SET(socket_right, &rfds);
-    max_fdid = (socket_left>socket_right)?socket_left:socket_right;
-    max_fdid = (socket_server>max_fdid)?socket_server:max_fdid;
+    
 
     retval = select(max_fdid+1, &rfds, NULL, NULL, NULL);
     if (retval == -1){
@@ -249,7 +251,7 @@ int main(int argc, char *argv[])
       }
     }
   }
-
+  FD_ZERO(&rfds);
 
 
 
