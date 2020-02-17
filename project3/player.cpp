@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
   max_fdid = (socket_server>max_fdid)?socket_server:max_fdid;
   
   srand((unsigned int)time(NULL)+id);
-  
+
   while(!GAMEOVER){
     FD_ZERO(&rfds);
     FD_SET(socket_server, &rfds);
@@ -208,15 +208,20 @@ int main(int argc, char *argv[])
       cerr<<"select()"<<endl;
     }
     if(FD_ISSET(socket_server, &rfds)){
-      recv(socket_server,&potato,sizeof(potato),0);
+      int bytes = recv(socket_server,&potato,sizeof(potato),0);
+      cout<<"from server "<<bytes<<endl;
+      cout<<"size of a potato"<<sizeof(potato)<<endl;
     }
     if(FD_ISSET(socket_left, &rfds)){
       recv(socket_left,&potato,sizeof(potato),0);
+      cout<<"from left"<<endl;
     }
     if(FD_ISSET(socket_right, &rfds)){
       recv(socket_right,&potato,sizeof(potato),0);
+      cout<<"from right"<<endl;
     }
     if(potato.GAMEOVER){
+      cout<<"Got it"<<endl;
       GAMEOVER = true;
     }
     else{
@@ -255,10 +260,10 @@ int main(int argc, char *argv[])
 
 
 
-  int closedFlag=0;
-  while(closedFlag==0){
-    recv(socket_server,&closedFlag,sizeof(closedFlag),0);
-  }
+  // int closedFlag=0;
+  // while(closedFlag==0){
+  //   recv(socket_server,&closedFlag,sizeof(closedFlag),0);
+  // }
   
 
   close(socket_left);
