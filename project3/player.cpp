@@ -134,8 +134,8 @@ int main(int argc, char *argv[])
       }
     }
     else if(signal==2){
-      struct addrinfo host_info_new;
-      struct addrinfo *host_info_new_list;
+      struct addrinfo host_info;
+      struct addrinfo *host_info_list;
 
       // Connect to the right neighbor
       struct sockaddr_storage socket_addr;
@@ -151,20 +151,20 @@ int main(int argc, char *argv[])
       char port_to_connect_str[50];
       assert(sprintf(port_to_connect_str,"%d",port_to_connect)>=0); // make sure converted successfully
 
-      memset(&host_info_new, 0, sizeof(host_info_new));
-      host_info_new.ai_family   = AF_UNSPEC;
-      host_info_new.ai_socktype = SOCK_STREAM;
+      memset(&host_info, 0, sizeof(host_info));
+      host_info.ai_family   = AF_UNSPEC;
+      host_info.ai_socktype = SOCK_STREAM;
 
-      status = getaddrinfo(inet_ntoa(temp->sin_addr), port_to_connect_str, &host_info_new, &host_info_new_list);
+      status = getaddrinfo(inet_ntoa(temp->sin_addr), port_to_connect_str, &host_info, &host_info_list);
       if (status != 0) {
         cerr << "Error: cannot get address info for host" << endl;
         cerr << "  (" << inet_ntoa(temp->sin_addr) << "," << port_to_connect << ")" << endl;
         return -1;
       } //if
-      assert(host_info_new_list->ai_next==NULL);
-      socket_right = socket(host_info_new_list->ai_family, 
-            host_info_new_list->ai_socktype, 
-            host_info_new_list->ai_protocol);
+      assert(host_info_list->ai_next==NULL);
+      socket_right = socket(host_info_list->ai_family, 
+            host_info_list->ai_socktype, 
+            host_info_list->ai_protocol);
 
       if (socket_right == -1) {
         cerr << "Error: cannot create socket" << endl;
@@ -172,14 +172,13 @@ int main(int argc, char *argv[])
         return -1;
       } //if
 
-      status = connect(socket_right, host_info_new_list->ai_addr, host_info_new_list->ai_addrlen);
+      status = connect(socket_right, host_info_list->ai_addr, host_info_list->ai_addrlen);
       if (status == -1) {
-	cerr << "Error: cannot connect to socket" << endl;
+	      cerr << "Error: cannot connect to socket" << endl;
         cerr << "  (" << inet_ntoa(temp->sin_addr) << "," << port_to_connect << ")" << endl;
         return -1;
       } //if
 
-      freeaddrinfo(host_info_new_list);
       connectedFlag = 1;
       send(socket_right, &connectedFlag, sizeof(connectedFlag), 0);
     }

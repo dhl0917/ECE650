@@ -92,8 +92,8 @@ int main(int argc, char *argv[])
     } //if
 
     struct sockaddr_in *temp = (struct sockaddr_in *)&socket_addr;
-    cout<<inet_ntoa(temp->sin_addr)<<endl;
-    cout<<temp->sin_port<<endl;
+    // cout<<inet_ntoa(temp->sin_addr)<<endl;
+    // cout<<temp->sin_port<<endl;
     
     socket_addr_list[playerCounter] = socket_addr;
     socket_addr_len_list[playerCounter] = socket_addr_len;
@@ -133,7 +133,6 @@ int main(int argc, char *argv[])
       cerr<<"Building the connection between Player "<<i<< " and its left neighbor failed."<<endl;
       return -1;
     }
-    cout<<"hey!"<<successFlag<<endl;
   }
 
   for(int i=0;i<num_players;i++){
