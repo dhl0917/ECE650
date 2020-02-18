@@ -118,13 +118,15 @@ int main(int argc, char *argv[])
     socket_addr_len_list[playerCounter] = socket_addr_len;
 
     int connectedFlag=0;
-    recv(socket_array[playerCounter],&connectedFlag,sizeof(connectedFlag),0);
+    //recv(socket_array[playerCounter],&connectedFlag,sizeof(connectedFlag),0);
+    assert(recv(socket_array[playerCounter],&connectedFlag,sizeof(connectedFlag),MSG_WAITALL)==sizeof(connectedFlag));
     if(connectedFlag==1){
       cout<<"Player "<<playerCounter<<" is ready to play"<<endl;
       int numberMessage[2];
       numberMessage[0] = playerCounter;
       numberMessage[1] = num_players;
-      send(socket_array[playerCounter],&numberMessage,sizeof(numberMessage),0);
+      //send(socket_array[playerCounter],&numberMessage,sizeof(numberMessage),0);
+      if(safe_send(socket_array[playerCounter],&numberMessage,sizeof(numberMessage),0)){return -1;}
     }
     else{
       cerr<<"Player "<<playerCounter<<" is down"<<endl;
@@ -137,18 +139,24 @@ int main(int argc, char *argv[])
   for(int i=0;i<num_players;i++){
     int to_listen = 1;
     int to_connect = 2;
-    send(socket_array[i],&to_listen,sizeof(to_listen),0);
+    if(safe_send(socket_array[i],&to_listen,sizeof(to_listen),0)){return -1;}
+    //send(socket_array[i],&to_listen,sizeof(to_listen),0);
     
     if(i+1!=num_players){
-      send(socket_array[i+1],&to_connect,sizeof(to_connect),0);
-      send(socket_array[i+1],&socket_addr_list[i],socket_addr_len_list[i],0);
+      //send(socket_array[i+1],&to_connect,sizeof(to_connect),0);
+      //send(socket_array[i+1],&socket_addr_list[i],socket_addr_len_list[i],0);
+      if(safe_send(socket_array[i+1],&to_connect,sizeof(to_connect),0)){return -1;}
+      if(safe_send(socket_array[i+1],&socket_addr_list[i],socket_addr_len_list[i],0)){return -1;}
     }
     else{
-      send(socket_array[0],&to_connect,sizeof(to_connect),0);
-      send(socket_array[0],&socket_addr_list[i],socket_addr_len_list[i],0);
+      //send(socket_array[0],&to_connect,sizeof(to_connect),0);
+      //send(socket_array[0],&socket_addr_list[i],socket_addr_len_list[i],0);
+      if(safe_send(socket_array[0],&to_connect,sizeof(to_connect),0)){return -1;}
+      if(safe_send(socket_array[0],&socket_addr_list[i],socket_addr_len_list[i],0)){return -1;}
     }
     int successFlag = 0;
-    recv(socket_array[i],&successFlag,sizeof(successFlag),0);
+    //recv(socket_array[i],&successFlag,sizeof(successFlag),0);
+    assert(recv(socket_array[i],&successFlag,sizeof(successFlag),MSG_WAITALL)==sizeof(successFlag));
     if(successFlag != 1){
       cerr<<"Building the connection between Player "<<i<< " and its left neighbor failed."<<endl;
       return -1;
@@ -158,7 +166,8 @@ int main(int argc, char *argv[])
   // Tell all players that all are synchronized
   for(int i=0;i<num_players;i++){
     int synFlag=0;
-    send(socket_array[i], &synFlag, sizeof(synFlag), 0);
+    //send(socket_array[i], &synFlag, sizeof(synFlag), 0);
+    if(safe_send(socket_array[i], &synFlag, sizeof(synFlag), 0)){return -1;}
   }
   
   // Initialize the potato
@@ -172,9 +181,7 @@ int main(int argc, char *argv[])
     // Tell all players GAMEOVER
     potato.GAMEOVER = 1;
     for(int i=0;i<num_players;i++){
-      if(safe_send(socket_array[i],&potato,sizeof(potato),0)){
-        return -1;
-      }
+      if(safe_send(socket_array[i],&potato,sizeof(potato),0)){return -1;}
     }
 
     // Synchronize all players to gameover state
@@ -187,7 +194,8 @@ int main(int argc, char *argv[])
     // Tell all players to close sockets
     for(int i=0;i<num_players;i++){
       int closedFlag=1;
-      send(socket_array[i], &closedFlag, sizeof(closedFlag), 0);
+      //send(socket_array[i], &closedFlag, sizeof(closedFlag), 0);
+      if(safe_send(socket_array[i], &closedFlag, sizeof(closedFlag), 0)){return -1;}
       close(socket_array[i]);
     }
 
@@ -202,7 +210,8 @@ int main(int argc, char *argv[])
   int random_start = rand() % num_players;
 
   // Send the first potato
-  send(socket_array[random_start],&potato,sizeof(potato),0);
+  //send(socket_array[random_start],&potato,sizeof(potato),0);
+  if(safe_send(socket_array[random_start],&potato,sizeof(potato),0)){return -1;}
   cout<<"Ready to start the game, sending potato to player "<<random_start<<endl;
 
 
@@ -224,7 +233,8 @@ int main(int argc, char *argv[])
 
   for(int i=0;i<num_players;i++){
     if(FD_ISSET(socket_array[i], &rfds)){
-      recv(socket_array[i],&potato,sizeof(potato),0);
+      //recv(socket_array[i],&potato,sizeof(potato),0);
+      assert(recv(socket_array[i],&potato,sizeof(potato),MSG_WAITALL)==sizeof(potato));
       break;
     }
   }
@@ -245,9 +255,7 @@ int main(int argc, char *argv[])
   // Tell all players GAMEOVER
   potato.GAMEOVER = 1;
   for(int i=0;i<num_players;i++){
-    if(safe_send(socket_array[i],&potato,sizeof(potato),0)){
-      return -1;
-    }
+    if(safe_send(socket_array[i],&potato,sizeof(potato),0)){return -1;}
   }
 
   // Synchronize all players to gameover state
@@ -260,14 +268,14 @@ int main(int argc, char *argv[])
   // Tell all players to close sockets
   for(int i=0;i<num_players;i++){
     int closedFlag=1;
-    if(safe_send(socket_array[i],&closedFlag,sizeof(closedFlag),0)){
-      return -1;
-    }
-    close(socket_array[i]);
+    if(safe_send(socket_array[i],&closedFlag,sizeof(closedFlag),0)){return -1;}
   }
 
 
   freeaddrinfo(host_info_list);
+  for(int i=0;i<num_players;i++){
+    close(socket_array[i]);
+  }
   close(socket_fd);
 
   return 0;

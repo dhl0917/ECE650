@@ -74,10 +74,13 @@ int main(int argc, char *argv[])
   freeaddrinfo(host_info_list);
 
   int connectedFlag = 1;
-  send(socket_server, &connectedFlag, sizeof(connectedFlag), 0);
+  //send(socket_server, &connectedFlag, sizeof(connectedFlag), 0);
+  if(safe_send(socket_server, &connectedFlag, sizeof(connectedFlag), 0)){return -1;}
+
 
   int numberMessage[2];
-  recv(socket_server,numberMessage,sizeof(numberMessage),0);
+  //recv(socket_server,numberMessage,sizeof(numberMessage),0);
+  assert(recv(socket_server,numberMessage,sizeof(numberMessage),MSG_WAITALL)==sizeof(numberMessage));
   int id = numberMessage[0];
   int num_players = numberMessage[1];
   cout<<"Connected as player "<<id<<" out of "<<num_players<<" total players"<<endl;
@@ -87,7 +90,8 @@ int main(int argc, char *argv[])
   bool syn = false;
   while(!syn){
     int signal;
-    recv(socket_server,&signal,sizeof(signal),0); // Standby, waiting for orders from the server
+    //recv(socket_server,&signal,sizeof(signal),0); // Standby, waiting for orders from the server
+    assert(recv(socket_server,&signal,sizeof(signal),MSG_WAITALL)==sizeof(signal));
     if(signal == 0){
       // All players connected and synchronized, break the loop
       syn = true;
@@ -143,9 +147,11 @@ int main(int argc, char *argv[])
         return -1;
       } //if
       connectedFlag=0;
-      recv(socket_left,&connectedFlag,sizeof(connectedFlag),0);
+      //recv(socket_left,&connectedFlag,sizeof(connectedFlag),0);
+      assert(recv(socket_left,&connectedFlag,sizeof(connectedFlag),MSG_WAITALL)==sizeof(connectedFlag));
       if(connectedFlag==1){
-        send(socket_server,&connectedFlag,sizeof(connectedFlag),0); // indicate the success to the server
+        //send(socket_server,&connectedFlag,sizeof(connectedFlag),0); // indicate the success to the server
+        if(safe_send(socket_server,&connectedFlag,sizeof(connectedFlag),0)){return -1;}
       }
       else{
         cerr<<"Player "<<id<<"'s connection with the left is down"<<endl;
@@ -158,7 +164,8 @@ int main(int argc, char *argv[])
 
       // Connect to the right neighbor
       struct sockaddr_storage socket_addr;
-      recv(socket_server,&socket_addr,sizeof(struct sockaddr_storage),0);
+      //recv(socket_server,&socket_addr,sizeof(struct sockaddr_storage),0);
+      assert(recv(socket_server,&socket_addr,sizeof(struct sockaddr_storage),MSG_WAITALL)==sizeof(struct sockaddr_storage));
       struct sockaddr_in *temp = (struct sockaddr_in *)&socket_addr;
       int port_to_connect;
       if(id == 0){
@@ -197,7 +204,8 @@ int main(int argc, char *argv[])
       }
       freeaddrinfo(host_info_list);
       connectedFlag = 1;
-      send(socket_right, &connectedFlag, sizeof(connectedFlag), 0);
+      //send(socket_right, &connectedFlag, sizeof(connectedFlag), 0);
+      if(safe_send(socket_right, &connectedFlag, sizeof(connectedFlag), 0)){return -1;}
     }
   }
 
