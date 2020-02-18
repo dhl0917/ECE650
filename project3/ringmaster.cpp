@@ -25,20 +25,6 @@ int safe_send(int socket_fd,const void * ptr,size_t size,int flags){
   return 0; // Returning 0 to indicate success
 }
 
-int safe_recv(int socket_fd, void * ptr,size_t size,int flags){
-  int bytes = 0;
-  int retval;
-  while(bytes!=size){
-    retval = recv(socket_fd,ptr,size,flags);
-    if(retval == -1){
-      cerr<<"Receiving failed"<<endl;
-      return 1; // Returning 1 to indicate failure
-    }
-    bytes += retval;
-  }
-  return 0; // Returning 0 to indicate success
-}
-
 
 int main(int argc, char *argv[])
 {
@@ -194,9 +180,7 @@ int main(int argc, char *argv[])
     // Synchronize all players to gameover state
     for(int i=0;i<num_players;i++){
       int gameoverFlag = 0;
-      if(safe_recv(socket_array[i],&gameoverFlag,sizeof(gameoverFlag),0)){
-        return -1;
-      }
+      assert(recv(socket_array[i],&gameoverFlag,sizeof(gameoverFlag),MSG_WAITALL)==sizeof(gameoverFlag));
       assert(gameoverFlag==1);
     }
 

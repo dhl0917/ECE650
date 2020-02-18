@@ -25,19 +25,6 @@ int safe_send(int socket_fd,const void * ptr,size_t size,int flags){
   return 0; // Returning 0 to indicate success
 }
 
-int safe_recv(int socket_fd, void * ptr,size_t size,int flags){
-  int bytes = 0;
-  int retval;
-  while(bytes!=size){
-    retval = recv(socket_fd,ptr,size,flags);
-    if(retval == -1){
-      cerr<<"Receiving failed"<<endl;
-      return 1; // Returning 1 to indicate failure
-    }
-    bytes += retval;
-  }
-  return 0; // Returning 0 to indicate success
-}
 
 int main(int argc, char *argv[])
 {
@@ -225,9 +212,7 @@ int main(int argc, char *argv[])
   max_fdid = (socket_server>max_fdid)?socket_server:max_fdid;
   
   srand((unsigned int)time(NULL)+id);
-  int index = 0;
   while(!GAMEOVER){
-    index += 1;
     FD_ZERO(&rfds);
     FD_SET(socket_server, &rfds);
     FD_SET(socket_left, &rfds);
@@ -239,17 +224,14 @@ int main(int argc, char *argv[])
       cerr<<"select()"<<endl;
     }
     if(FD_ISSET(socket_server, &rfds)){
-      if(safe_recv(socket_server,&potato,sizeof(potato),0)){
-        return -1;
-      }
+      assert(recv(socket_server,&potato,sizeof(potato),MSG_WAITALL)==sizeof(potato));
     }
     if(FD_ISSET(socket_left, &rfds)){
-      recv(socket_left,&potato,sizeof(potato),0);
+      assert(recv(socket_left,&potato,sizeof(potato),MSG_WAITALL)==sizeof(potato));
     }
     if(FD_ISSET(socket_right, &rfds)){
-      recv(socket_right,&potato,sizeof(potato),0);
+      assert(recv(socket_right,&potato,sizeof(potato),MSG_WAITALL)==sizeof(potato));
     }
-    cout<<potato.GAMEOVER<<endl;
     if(potato.GAMEOVER){
       GAMEOVER = true;
     }
