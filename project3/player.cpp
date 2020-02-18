@@ -242,7 +242,10 @@ int main(int argc, char *argv[])
 
       if(potato.num_hops == 0){
         cout<<"I’m it"<<endl;
-        send(socket_server,&potato,sizeof(potato),0);
+        //send(socket_server,&potato,sizeof(potato),0);
+        if(safe_send(socket_server,&potato,sizeof(potato),0)){
+          return -1;
+        }
       }
       else{
         int random_send = rand() % 2; // 0 to the left, 1 to the right
@@ -253,7 +256,10 @@ int main(int argc, char *argv[])
           else{
             cout<<"Sending potato to "<<id+1<<endl;
           }
-          send(socket_left,&potato,sizeof(potato),0);
+          //send(socket_left,&potato,sizeof(potato),0);
+          if(safe_send(socket_left,&potato,sizeof(potato),0)){
+            return -1;
+          }
         }
         else{
           if(id == 0){
@@ -262,7 +268,10 @@ int main(int argc, char *argv[])
           else{
             cout<<"Sending potato to "<<id-1<<endl;
           }
-          send(socket_right,&potato,sizeof(potato),0);
+          //send(socket_right,&potato,sizeof(potato),0);
+          if(safe_send(socket_right,&potato,sizeof(potato),0)){
+            return -1;
+          }
         }
       }
     }
