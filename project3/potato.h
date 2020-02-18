@@ -4,7 +4,7 @@
 struct potato_tag{
   int num_hops;
   int index;
-  int trace[512];
+  int trace[1000];
   int GAMEOVER; // 1 is over, 0 is not over
 };
 
