@@ -177,13 +177,14 @@ int main(int argc, char *argv[])
   
   // Initialize the potato
   potato_t potato;
+  memset(&potato, 0, sizeof(potato));
   potato.num_hops = num_hops;
   potato.index = -1;
-  potato.GAMEOVER = false;
+  potato.GAMEOVER = 0;
 
   if(potato.num_hops == 0){
     // Tell all players GAMEOVER
-    potato.GAMEOVER = true;
+    potato.GAMEOVER = 1;
     for(int i=0;i<num_players;i++){
       if(safe_send(socket_array[i],&potato,sizeof(potato),0)){
         return -1;

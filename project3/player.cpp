@@ -219,13 +219,15 @@ int main(int argc, char *argv[])
   fd_set rfds;
   int retval;
   potato_t potato;
+  memset(&potato, 0, sizeof(potato));
   int max_fdid;
   max_fdid = (socket_left>socket_right)?socket_left:socket_right;
   max_fdid = (socket_server>max_fdid)?socket_server:max_fdid;
   
   srand((unsigned int)time(NULL)+id);
-
+  int index = 0;
   while(!GAMEOVER){
+    index += 1;
     FD_ZERO(&rfds);
     FD_SET(socket_server, &rfds);
     FD_SET(socket_left, &rfds);
@@ -243,14 +245,12 @@ int main(int argc, char *argv[])
     }
     if(FD_ISSET(socket_left, &rfds)){
       recv(socket_left,&potato,sizeof(potato),0);
-      cout<<"from left"<<endl;
     }
     if(FD_ISSET(socket_right, &rfds)){
       recv(socket_right,&potato,sizeof(potato),0);
-      cout<<"from right"<<endl;
     }
+    cout<<potato.GAMEOVER<<endl;
     if(potato.GAMEOVER){
-      cout<<"Got it"<<endl;
       GAMEOVER = true;
     }
     else{
@@ -287,9 +287,9 @@ int main(int argc, char *argv[])
   }
   FD_ZERO(&rfds);
 
-  int gameoverFlag = 0;
+  int gameoverFlag = 1;
   if(safe_send(socket_server,&gameoverFlag,sizeof(gameoverFlag),0)){return -1;}
-  
+
 
 
   int closedFlag=0;
