@@ -92,7 +92,6 @@ int main(int argc, char *argv[])
     int signal;
     //recv(socket_server,&signal,sizeof(signal),0); // Standby, waiting for orders from the server
     assert(recv(socket_server,&signal,sizeof(signal),MSG_WAITALL)==sizeof(signal));
-    cout<<signal<<endl;
     if(signal == 0){
       // All players connected and synchronized, break the loop
       syn = true;
