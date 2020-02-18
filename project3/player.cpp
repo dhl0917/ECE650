@@ -8,7 +8,36 @@
 #include <stdlib.h> 
 #include <stdio.h>
 #include "potato.h"
+
 using namespace std;
+
+int safe_send(int socket_fd,const void * ptr,size_t size,int flags){
+  int bytes = 0;
+  int retval;
+  while(bytes!=size){
+    retval = send(socket_fd,ptr,size,flags);
+    if(retval == -1){
+      cerr<<"Sending failed"<<endl;
+      return 1; // Returning 1 to indicate failure
+    }
+    bytes += retval;
+  }
+  return 0; // Returning 0 to indicate success
+}
+
+int safe_recv(int socket_fd, void * ptr,size_t size,int flags){
+  int bytes = 0;
+  int retval;
+  while(bytes!=size){
+    retval = recv(socket_fd,ptr,size,flags);
+    if(retval == -1){
+      cerr<<"Receiving failed"<<endl;
+      return 1; // Returning 1 to indicate failure
+    }
+    bytes += retval;
+  }
+  return 0; // Returning 0 to indicate success
+}
 
 int main(int argc, char *argv[])
 {
@@ -208,9 +237,9 @@ int main(int argc, char *argv[])
       cerr<<"select()"<<endl;
     }
     if(FD_ISSET(socket_server, &rfds)){
-      int bytes = recv(socket_server,&potato,sizeof(potato),0);
-      cout<<"from server "<<bytes<<endl;
-      cout<<"size of a potato"<<sizeof(potato)<<endl;
+      if(safe_recv(socket_server,&potato,sizeof(potato),0)){
+        return -1;
+      }
     }
     if(FD_ISSET(socket_left, &rfds)){
       recv(socket_left,&potato,sizeof(potato),0);
@@ -258,12 +287,15 @@ int main(int argc, char *argv[])
   }
   FD_ZERO(&rfds);
 
+  int gameoverFlag = 0;
+  if(safe_send(socket_server,&gameoverFlag,sizeof(gameoverFlag),0)){return -1;}
+  
 
 
-  // int closedFlag=0;
-  // while(closedFlag==0){
-  //   recv(socket_server,&closedFlag,sizeof(closedFlag),0);
-  // }
+  int closedFlag=0;
+  while(closedFlag==0){
+    recv(socket_server,&closedFlag,sizeof(closedFlag),0);
+  }
   
 
   close(socket_left);
