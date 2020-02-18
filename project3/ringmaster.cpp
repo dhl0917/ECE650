@@ -250,6 +250,13 @@ int main(int argc, char *argv[])
     }
   }
 
+  // Synchronize all players to gameover state
+  for(int i=0;i<num_players;i++){
+    int gameoverFlag = 0;
+    assert(recv(socket_array[i],&gameoverFlag,sizeof(gameoverFlag),MSG_WAITALL)==sizeof(gameoverFlag));
+    assert(gameoverFlag==1);
+  }
+
   // Tell all players to close sockets
   for(int i=0;i<num_players;i++){
     int closedFlag=1;
