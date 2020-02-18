@@ -142,7 +142,6 @@ int main(int argc, char *argv[])
     int to_connect = 2;
     if(safe_send(socket_array[i],&to_listen,sizeof(to_listen),0)){return -1;}
     //send(socket_array[i],&to_listen,sizeof(to_listen),0);
-    cout<<"Here!1"<<endl;
     
     if(i+1!=num_players){
       //send(socket_array[i+1],&to_connect,sizeof(to_connect),0);
