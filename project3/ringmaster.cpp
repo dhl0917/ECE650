@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
     }
     playerCounter += 1;
   }
+  cout<<"Here!1"<<endl;
 
   // Send target IP addresses and connect all players
   for(int i=0;i<num_players;i++){
@@ -141,17 +142,21 @@ int main(int argc, char *argv[])
     int to_connect = 2;
     if(safe_send(socket_array[i],&to_listen,sizeof(to_listen),0)){return -1;}
     //send(socket_array[i],&to_listen,sizeof(to_listen),0);
+    cout<<"Here!1"<<endl;
     
     if(i+1!=num_players){
       //send(socket_array[i+1],&to_connect,sizeof(to_connect),0);
       //send(socket_array[i+1],&socket_addr_list[i],socket_addr_len_list[i],0);
       if(safe_send(socket_array[i+1],&to_connect,sizeof(to_connect),0)){return -1;}
+      if(safe_send(socket_array[i+1],&socket_addr_len_list[i],sizeof(socklen_t),0)){return -1;}
       if(safe_send(socket_array[i+1],&socket_addr_list[i],socket_addr_len_list[i],0)){return -1;}
+      
     }
     else{
       //send(socket_array[0],&to_connect,sizeof(to_connect),0);
       //send(socket_array[0],&socket_addr_list[i],socket_addr_len_list[i],0);
       if(safe_send(socket_array[0],&to_connect,sizeof(to_connect),0)){return -1;}
+      if(safe_send(socket_array[0],&socket_addr_len_list[i],sizeof(socklen_t),0)){return -1;}
       if(safe_send(socket_array[0],&socket_addr_list[i],socket_addr_len_list[i],0)){return -1;}
     }
     int successFlag = 0;

@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
     int signal;
     //recv(socket_server,&signal,sizeof(signal),0); // Standby, waiting for orders from the server
     assert(recv(socket_server,&signal,sizeof(signal),MSG_WAITALL)==sizeof(signal));
+    cout<<signal<<endl;
     if(signal == 0){
       // All players connected and synchronized, break the loop
       syn = true;
@@ -141,7 +142,9 @@ int main(int argc, char *argv[])
       } //if
       struct sockaddr_storage socket_addr_left;
       socklen_t socket_addr_len_left = sizeof(socket_addr_left);
+      cout<<"Here!1"<<endl;
       socket_left = accept(socket_listen, (struct sockaddr *)&socket_addr_left, &socket_addr_len_left);
+      cout<<"Here!2"<<endl;
       if (socket_left == -1) {
         cerr << "Error: cannot accept connection on the socket of player "<<id<< endl;
         return -1;
@@ -164,8 +167,12 @@ int main(int argc, char *argv[])
 
       // Connect to the right neighbor
       struct sockaddr_storage socket_addr;
+      socklen_t socket_addr_len = sizeof(socket_addr);
+      assert(recv(socket_server,&socket_addr_len,sizeof(socket_addr_len),MSG_WAITALL)==sizeof(socket_addr_len));
       //recv(socket_server,&socket_addr,sizeof(struct sockaddr_storage),0);
-      assert(recv(socket_server,&socket_addr,sizeof(struct sockaddr_storage),MSG_WAITALL)==sizeof(struct sockaddr_storage));
+      cout<<"Here!1"<<endl;
+      assert(recv(socket_server,&socket_addr,socket_addr_len,MSG_WAITALL)==socket_addr_len);
+      cout<<"Here!2"<<endl;
       struct sockaddr_in *temp = (struct sockaddr_in *)&socket_addr;
       int port_to_connect;
       if(id == 0){
@@ -199,12 +206,14 @@ int main(int argc, char *argv[])
       } //if
 
       status = -1;
+      cout<<"Here!3"<<endl;
       while(status==-1){
 	      status = connect(socket_right, host_info_list->ai_addr, host_info_list->ai_addrlen);
       }
       freeaddrinfo(host_info_list);
       connectedFlag = 1;
       //send(socket_right, &connectedFlag, sizeof(connectedFlag), 0);
+      cout<<"Here!4"<<endl;
       if(safe_send(socket_right, &connectedFlag, sizeof(connectedFlag), 0)){return -1;}
     }
   }
