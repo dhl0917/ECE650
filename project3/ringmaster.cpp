@@ -134,7 +134,6 @@ int main(int argc, char *argv[])
     }
     playerCounter += 1;
   }
-  cout<<"Here!1"<<endl;
 
   // Send target IP addresses and connect all players
   for(int i=0;i<num_players;i++){
