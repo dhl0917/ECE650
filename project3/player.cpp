@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
 
   int closedFlag=0;
   while(closedFlag==0){
-    recv(socket_server,&closedFlag,sizeof(closedFlag),0);
+    assert(recv(socket_server,&closedFlag,sizeof(closedFlag),MSG_WAITALL)==sizeof(closedFlag));
   }
   
 

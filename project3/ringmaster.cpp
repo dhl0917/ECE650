@@ -243,15 +243,19 @@ int main(int argc, char *argv[])
   cout<<endl;
 
   // Tell all players GAMEOVER
-  potato.GAMEOVER = true;
+  potato.GAMEOVER = 1;
   for(int i=0;i<num_players;i++){
-    send(socket_array[i],&potato,sizeof(potato),0);
+    if(safe_send(socket_array[i],&potato,sizeof(potato),0)){
+      return -1;
+    }
   }
 
   // Tell all players to close sockets
   for(int i=0;i<num_players;i++){
     int closedFlag=1;
-    send(socket_array[i], &closedFlag, sizeof(closedFlag), 0);
+    if(safe_send(socket_array[i],&closedFlag,sizeof(closedFlag),0)){
+      return -1;
+    }
     close(socket_array[i]);
   }
 
