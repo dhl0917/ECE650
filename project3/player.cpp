@@ -302,6 +302,6 @@ int main(int argc, char *argv[])
   close(socket_right);
   close(socket_listen);
   close(socket_server);
-  cout<<"Player "<<id<<" closed"<<endl;
+  //cout<<"Player "<<id<<" closed"<<endl;
   return 0;
 }
