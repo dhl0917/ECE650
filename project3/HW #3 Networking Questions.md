@@ -38,6 +38,8 @@ Each byte of a packet has its own sequence number and the sequence numbers are 6
 $$
 lifetime=\frac{2^{67}}{100\times2^{40}}=\frac{2^{27}}{100}s=1342177.28s=372.82hours=15.53days
 $$
+
+
 6.
 
 - Creation Date: 1986-06-02T04:00:00Z
@@ -50,10 +52,10 @@ $$
 
 
 
-![Screen Shot 2020-02-19 at 10.00.01 PM](/Users/donghongliang/Library/Application Support/typora-user-images/Screen Shot 2020-02-19 at 10.00.01 PM.png)
+![Screen Shot 2020-02-19 at 10.00.01 PM](./6.png)
 
 
 
 7.
 
-![Screen Shot 2020-02-19 at 10.38.15 PM](/Users/donghongliang/Library/Application Support/typora-user-images/Screen Shot 2020-02-19 at 10.38.15 PM.png)
+![Screen Shot 2020-02-19 at 10.38.15 PM](./7.png)
