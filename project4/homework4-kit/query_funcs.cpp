@@ -175,7 +175,7 @@ void query5(connection *C, int num_wins)
     string sql = ss.str();
     nontransaction N(*C);
     result R(N.exec(sql));
-    cout<<"FIRST_NAME LAST_NAME TEAM_NAME WINS"<<endl;
+    cout<<"FIRST_NAME LAST_NAME NAME WINS"<<endl;
     for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
          cout << c[0].as<string>() << " " << c[1].as<string>() << " " << c[2].as<string>() << " " << c[3].as<int>() << " " << endl;
       }
