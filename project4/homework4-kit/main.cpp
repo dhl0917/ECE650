@@ -3,6 +3,8 @@
 #include "assert.h"
 #include "exerciser.h"
 #include <string>
+#include<fstream>
+#include<sstream>
 
 using namespace std;
 using namespace pqxx;
@@ -103,6 +105,69 @@ void createTables(connection* C){
   createPlayer(C);
 }
 
+
+void initialState(connection* C){
+  string state_id, name, line;
+  ifstream ifs;
+  ifs.open("state.txt",ifstream::in);
+  while(getline(ifs,line)){
+    stringstream ss;
+    ss<<line;
+    ss>>state_id>>name;
+    add_state(C,name);
+  }
+  ifs.close();
+}
+
+void initialColor(connection* C){
+  string color_id, name, line;
+  ifstream ifs;
+  ifs.open("color.txt",ifstream::in);
+  while(getline(ifs,line)){
+    stringstream ss;
+    ss<<line;
+    ss>>color_id>>name;
+    add_color(C,name);
+  }
+  ifs.close();
+}
+
+void initialTeam(connection* C){
+  string team_id, name, line;
+  int state_id, color_id, wins, losses;
+  ifstream ifs;
+  ifs.open("team.txt",ifstream::in);
+  while(getline(ifs,line)){
+    stringstream ss;
+    ss<<line;
+    ss>>team_id>>name>>state_id>>color_id>>wins>>losses;
+    add_team(C,name,state_id,color_id,wins,losses);
+  }
+  ifs.close();
+}
+
+void initialPlayer(connection* C){
+  string player_id, name, first_name, last_name, line;
+  int team_id, uniform_num, mpg, ppg, rpg, apg;
+  double spg, bpg;
+  ifstream ifs;
+  ifs.open("player.txt",ifstream::in);
+  while(getline(ifs,line)){
+    stringstream ss;
+    ss<<line;
+    ss>>player_id>>team_id>>uniform_num>>first_name>>last_name>>mpg>>ppg>>rpg>>apg>>spg>>bpg;
+    add_player(C,team_id,uniform_num,first_name,last_name,mpg,ppg,rpg,apg,spg,bpg);
+  }
+  ifs.close();
+}
+
+void initialContent(connection* C){
+  initialState(C);
+  initialColor(C);
+  initialTeam(C);
+  initialPlayer(C);
+}
+
 int main (int argc, char *argv[]) 
 {
 
@@ -110,10 +175,10 @@ int main (int argc, char *argv[])
   connection* C = connect();
   assert(C != NULL);
 
-  createTables(C);
-
   //TODO: create PLAYER, TEAM, STATE, and COLOR tables in the ACC_BBALL database
   //      load each table with rows from the provided source txt files
+  createTables(C);
+  initialContent(C);
 
 
   exercise(C);
@@ -121,6 +186,7 @@ int main (int argc, char *argv[])
 
   //Close database connection
   C->disconnect();
+  delete(C);
 
   return 0;
 }
