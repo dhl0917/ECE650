@@ -16,10 +16,8 @@ connection* connect(){
     //Parameters: database name, user name, user password
     C = new connection("dbname=ACC_BBALL user=postgres password=passw0rd");
     if (C->is_open()) {
-      cout << "Opened database successfully: " << C->dbname() << endl;
       return C;
     } else {
-      cout << "Can't open database" << endl;
       return NULL;
     }
   } catch (const std::exception &e){
@@ -179,10 +177,7 @@ int main (int argc, char *argv[])
   //      load each table with rows from the provided source txt files
   createTables(C);
   initialContent(C);
-
-
   exercise(C);
-
 
   //Close database connection
   C->disconnect();
