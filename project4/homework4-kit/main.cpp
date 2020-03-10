@@ -3,8 +3,8 @@
 #include "assert.h"
 #include "exerciser.h"
 #include <string>
-#include<fstream>
-#include<sstream>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 using namespace pqxx;
