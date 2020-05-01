@@ -1,0 +1,11 @@
+Paper title: An Efficient Dynamic Round Robin Algorithm for CPU scheduling
+
+Motivation(s): The efficiency of round robin algorithm depends on chosen time quantum, and the existing systems with Dynamic Time Quantum suffer from taking advantage of other algorithms and sorting of processes which is practically impossible.
+
+Contribution(s): It developed an efficient Round Robin algorithm using Dynamic Time Quantum which can reduce running time of an algorithm along with efficiency constraints.
+
+Approach: Set the time quantum to 0.8th fraction of the maximum burst time of the available processes in ready queue, then after the execution of all smaller processes, set the time quantum to the maximum burst time. Recalculate the time quantum at the end of current quantum only if a new process has been entered the ready queue.
+
+Strengths: The paper introduced its method comprehensively and has thorough comparison with many previous round robin sheduling methods with both same arrival times and different arrival times, which shows the superiority of its method convincingly. 
+
+Weaknesses: The paper does not make it clear why they select the 0.8th fraction of the maximum burst time as the time quantum. It would be better if there is a trend between the fraction and the efficiency showing that 0.8th fraction is an optimal one. 

@@ -1,0 +1,11 @@
+Paper title: Edge Computing: Vision and Challenges
+
+Motivation(s): Under the prosperity of Internet of Things, cloud computing is not sufficient to support various requirements from IoT applications.
+
+Contribution(s): Provide the definition of a new computing paradigm, edge computing, from their understanding, and indicate that the logic is to make computing happen close to data sources.
+
+Approach: The paper first introduces the need for edge computing, and then provides the definition of edge and edge computing and the benefits of edge computing. Several case studies are used as instances to further demonstrate the definition and benefits in different environments. Finally, the paper analyzes the challenges to realize such defined edge computing, which are also promising opportunities for further research.
+
+Strengths: The architecture of the paper is clear and well-organized that audiences can be led into the topic step by step and layer by layer. Several case studies provide concrete examples to help audiences even with little background have a better understanding of what edge computing is and what edge computing can be in practice in various scales.
+
+Weaknesses: The paper gives its definition of edge computing based on its understanding, however, it does not provide any other vision of definition or any comparison, which makes it difficult to judge how good or bad the definition in the paper is. The paper proposes potential solutions, e.g. computing stream for programmability and edgeOS assigning network address for naming, when talking about the challenges, but these solutions are not described and verified rigorously, which makes it unconvincing to me.
